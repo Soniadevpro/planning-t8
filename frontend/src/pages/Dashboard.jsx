@@ -1,27 +1,9 @@
 import React from 'react';
-import {
-  Box,
-  Container,
-  Typography,
-  Grid,
-  Card,
-  CardContent,
-  Button,
-  Avatar,
-  Chip,
-} from '@mui/material';
-import {
-  Dashboard as DashboardIcon,
-  CalendarToday,
-  SwapHoriz,
-  Person,
-  ExitToApp,
-} from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
-  const { user, logout, isAdmin, isSuperviseur, isAgent } = useAuth();
+  const { user, logout, isAdmin, isSuperviseur } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -29,280 +11,118 @@ const Dashboard = () => {
     navigate('/login');
   };
 
-  const getRoleColor = () => {
-    if (isAdmin()) return 'error';
-    if (isSuperviseur()) return 'warning';
-    return 'primary';
+  const getRoleInfo = () => {
+    if (isAdmin()) return { label: 'Administrateur', icon: '👑' };
+    if (isSuperviseur()) return { label: 'Superviseur', icon: '👨‍💼' };
+    return { label: 'Agent', icon: '👷‍♂️' };
   };
 
-  const getRoleLabel = () => {
-    if (isAdmin()) return 'Administrateur';
-    if (isSuperviseur()) return 'Superviseur';
-    return 'Agent';
-  };
+  const roleInfo = getRoleInfo();
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      {/* Header */}
-      <Box
-        sx={{
-          bgcolor: 'primary.main',
-          color: 'white',
-          py: 3,
-          mb: 4,
-          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-        }}
-      >
-        <Container maxWidth="lg">
-          <Box display="flex" alignItems="center" justifyContent="space-between">
-            <Box display="flex" alignItems="center" gap={2}>
-              <Avatar sx={{ bgcolor: 'primary.dark', width: 48, height: 48 }}>
-                <DashboardIcon />
-              </Avatar>
-              
-              <Box>
-                <Typography variant="h4" component="h1" fontWeight="bold">
-                  Planning T8
-                </Typography>
-                <Typography variant="body1" sx={{ opacity: 0.9 }}>
-                  Tableau de bord
-                </Typography>
-              </Box>
-            </Box>
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+      {/* Header simple */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center', 
+        marginBottom: '2rem',
+        padding: '1rem',
+        backgroundColor: '#2563eb',
+        color: 'white',
+        borderRadius: '8px'
+      }}>
+        <div>
+          <h1>📊 Dashboard T8</h1>
+          <p>Bienvenue, {user?.first_name || user?.username} !</p>
+        </div>
+        
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button 
+            onClick={() => navigate('/planning')}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: 'rgba(255,255,255,0.2)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            📅 Planning
+          </button>
+          <button 
+            onClick={() => navigate('/exchanges')}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: 'rgba(255,255,255,0.2)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            🔄 Échanges
+          </button>
+          <button 
+            onClick={handleLogout}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: '#dc2626',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            🚪 Déconnexion
+          </button>
+        </div>
+      </div>
 
-            <Button
-              color="inherit"
-              startIcon={<ExitToApp />}
-              onClick={handleLogout}
-              sx={{ textTransform: 'none' }}
-            >
-              Déconnexion
-            </Button>
-          </Box>
-        </Container>
-      </Box>
+      {/* Informations utilisateur */}
+      <div style={{
+        padding: '1.5rem',
+        backgroundColor: 'white',
+        borderRadius: '8px',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        marginBottom: '2rem'
+      }}>
+        <h2>Informations utilisateur</h2>
+        <p><strong>Nom :</strong> {user?.first_name || user?.username}</p>
+        <p><strong>Rôle :</strong> {roleInfo.icon} {roleInfo.label}</p>
+        {user?.matricule && <p><strong>Matricule :</strong> {user.matricule}</p>}
+      </div>
 
-      <Container maxWidth="lg">
-        {/* Informations utilisateur */}
-        <Card sx={{ mb: 4 }}>
-          <CardContent>
-            <Box display="flex" alignItems="center" gap={2}>
-              <Avatar sx={{ width: 64, height: 64, bgcolor: 'primary.main' }}>
-                <Person fontSize="large" />
-              </Avatar>
-              
-              <Box flex={1}>
-                <Typography variant="h5" gutterBottom>
-                  Bienvenue, {user?.first_name || user?.username} !
-                </Typography>
-                
-                <Box display="flex" gap={1} alignItems="center">
-                  <Chip
-                    label={getRoleLabel()}
-                    color={getRoleColor()}
-                    size="small"
-                  />
-                  
-                  {user?.matricule && (
-                    <Chip
-                      label={`Matricule: ${user.matricule}`}
-                      variant="outlined"
-                      size="small"
-                    />
-                  )}
-                </Box>
-                
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                  Dernière connexion: {new Date().toLocaleDateString('fr-FR')}
-                </Typography>
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
+      {/* Actions rapides */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
+        <div style={{
+          padding: '1.5rem',
+          backgroundColor: 'white',
+          borderRadius: '8px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+          textAlign: 'center',
+          cursor: 'pointer'
+        }} onClick={() => navigate('/planning')}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📅</div>
+          <h3>Planning Collectif</h3>
+          <p>Vue mensuelle des plannings de toute l'équipe</p>
+        </div>
 
-        {/* Actions rapides */}
-        <Typography variant="h5" gutterBottom sx={{ mb: 3 }}>
-          Actions rapides
-        </Typography>
-
-        <Grid container spacing={3}>
-          {/* Planning */}
-          <Grid item xs={12} md={4}>
-            <Card
-              sx={{
-                height: '100%',
-                cursor: 'pointer',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
-                },
-              }}
-              onClick={() => navigate('/planning')}
-            >
-              <CardContent sx={{ textAlign: 'center', py: 4 }}>
-                <Avatar
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    mx: 'auto',
-                    mb: 2,
-                    bgcolor: 'primary.main',
-                  }}
-                >
-                  <CalendarToday fontSize="large" />
-                </Avatar>
-                
-                <Typography variant="h6" gutterBottom>
-                  Planning
-                </Typography>
-                
-                <Typography variant="body2" color="text.secondary">
-                  Consultez vos plannings et horaires
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Échanges */}
-          <Grid item xs={12} md={4}>
-            <Card
-              sx={{
-                height: '100%',
-                cursor: 'pointer',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
-                },
-              }}
-              onClick={() => navigate('/exchanges')}
-            >
-              <CardContent sx={{ textAlign: 'center', py: 4 }}>
-                <Avatar
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    mx: 'auto',
-                    mb: 2,
-                    bgcolor: 'secondary.main',
-                  }}
-                >
-                  <SwapHoriz fontSize="large" />
-                </Avatar>
-                
-                <Typography variant="h6" gutterBottom>
-                  Échanges
-                </Typography>
-                
-                <Typography variant="body2" color="text.secondary">
-                  Gérez vos demandes d'échange
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-
-          {/* Profil */}
-          <Grid item xs={12} md={4}>
-            <Card
-              sx={{
-                height: '100%',
-                cursor: 'pointer',
-                transition: 'transform 0.2s, box-shadow 0.2s',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: '0 8px 20px rgba(0,0,0,0.15)',
-                },
-              }}
-              onClick={() => navigate('/profile')}
-            >
-              <CardContent sx={{ textAlign: 'center', py: 4 }}>
-                <Avatar
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    mx: 'auto',
-                    mb: 2,
-                    bgcolor: 'success.main',
-                  }}
-                >
-                  <Person fontSize="large" />
-                </Avatar>
-                
-                <Typography variant="h6" gutterBottom>
-                  Mon Profil
-                </Typography>
-                
-                <Typography variant="body2" color="text.secondary">
-                  Modifiez vos informations personnelles
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
-
-        {/* Statistiques rapides */}
-        <Box mt={4}>
-          <Typography variant="h5" gutterBottom>
-            Aperçu rapide
-          </Typography>
-          
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent sx={{ textAlign: 'center' }}>
-                  <Typography variant="h4" color="primary.main" fontWeight="bold">
-                    12
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Services ce mois
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent sx={{ textAlign: 'center' }}>
-                  <Typography variant="h4" color="secondary.main" fontWeight="bold">
-                    3
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Demandes en cours
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent sx={{ textAlign: 'center' }}>
-                  <Typography variant="h4" color="success.main" fontWeight="bold">
-                    8
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Échanges validés
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-            
-            <Grid item xs={12} sm={6} md={3}>
-              <Card>
-                <CardContent sx={{ textAlign: 'center' }}>
-                  <Typography variant="h4" color="info.main" fontWeight="bold">
-                    2
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Jours de repos
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-        </Box>
-      </Container>
-    </Box>
+        <div style={{
+          padding: '1.5rem',
+          backgroundColor: 'white',
+          borderRadius: '8px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+          textAlign: 'center',
+          cursor: 'pointer'
+        }} onClick={() => navigate('/exchanges')}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔄</div>
+          <h3>Échanges</h3>
+          <p>Gérez vos demandes d'échange</p>
+        </div>
+      </div>
+    </div>
   );
 };
 
