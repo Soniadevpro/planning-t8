@@ -1,0 +1,254 @@
+/* Styles pour la page des échanges */
+@import './variables.css';
+
+.exchanges-container {
+  min-height: 100vh;
+  padding-bottom: var(--spacing-xxl);
+}
+
+/* Header */
+.exchanges-header {
+  background: linear-gradient(135deg, var(--ratp-blue) 0%, var(--ratp-blue-dark) 100%);
+  color: white;
+  padding: var(--spacing-lg) 0;
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.header-left h1 {
+  font-size: 1.8rem;
+  margin-bottom: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.header-left h1 span {
+  color: var(--ratp-green-light);
+}
+
+/* Onglets */
+.exchanges-tabs {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xl);
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border: none;
+  border-radius: var(--border-radius-md);
+  background-color: white;
+  color: var(--ratp-text-dark);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-weight: 500;
+  box-shadow: var(--shadow-sm);
+}
+
+.tab-btn.active {
+  background-color: var(--ratp-blue);
+  color: white;
+}
+
+.tab-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.create-btn {
+  margin-left: auto;
+  background-color: var(--ratp-green);
+  color: white;
+}
+
+.create-btn:hover {
+  background-color: var(--ratp-green-dark);
+}
+
+/* Liste des échanges */
+.exchanges-list {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.exchange-card {
+  background-color: white;
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-lg);
+  transition: var(--transition-normal);
+}
+
+.exchange-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.exchange-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.exchange-date {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--ratp-text-dark);
+  font-weight: 500;
+}
+
+.exchange-status {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.exchange-status.pending {
+  background-color: var(--ratp-warning);
+  color: white;
+}
+
+.exchange-status.accepted {
+  background-color: var(--ratp-success);
+  color: white;
+}
+
+.exchange-details {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md) 0;
+  border-top: 1px solid var(--ratp-gray-dark);
+  border-bottom: 1px solid var(--ratp-gray-dark);
+}
+
+.exchange-service {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.exchange-service strong {
+  color: var(--ratp-text-dark);
+  font-size: 0.875rem;
+}
+
+.exchange-service span {
+  font-size: 1.125rem;
+  color: var(--ratp-blue);
+  font-weight: 500;
+}
+
+.exchange-arrow {
+  color: var(--ratp-text-light);
+  font-size: 1.5rem;
+}
+
+.exchange-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.exchange-user {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--ratp-text-light);
+}
+
+.exchange-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.action-btn {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  transition: var(--transition-normal);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.action-btn.accept {
+  background-color: var(--ratp-success);
+  color: white;
+}
+
+.action-btn.reject {
+  background-color: var(--ratp-error);
+  color: white;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .header-nav {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .exchanges-tabs {
+    flex-direction: column;
+  }
+  
+  .create-btn {
+    margin-left: 0;
+    order: -1;
+  }
+  
+  .exchange-details {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    text-align: center;
+  }
+  
+  .exchange-arrow {
+    transform: rotate(90deg);
+  }
+  
+  .exchange-footer {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    text-align: center;
+  }
+  
+  .exchange-actions {
+    width: 100%;
+    justify-content: center;
+  }
+}

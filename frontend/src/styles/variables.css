@@ -1,0 +1,46 @@
+/* Variables CSS pour le thème RATP */
+:root {
+  /* Couleurs principales RATP */
+  --ratp-blue: #004494;
+  --ratp-blue-light: #0064b0;
+  --ratp-blue-dark: #003371;
+  --ratp-green: #00a566;
+  --ratp-green-light: #00c278;
+  --ratp-green-dark: #008754;
+  
+  /* Couleurs secondaires */
+  --ratp-gray: #f5f6f7;
+  --ratp-gray-light: #f9fafb;
+  --ratp-gray-dark: #e2e4e6;
+  --ratp-text: #2c3e50;
+  --ratp-text-light: #4a5568;
+  --ratp-text-dark: #1a202c;
+  
+  /* Couleurs fonctionnelles */
+  --ratp-success: #10b981;
+  --ratp-warning: #f59e0b;
+  --ratp-error: #ef4444;
+  --ratp-info: #3b82f6;
+  
+  /* Tailles et espacements */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-xxl: 3rem;
+  
+  /* Bordures et ombres */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  --border-radius-xl: 16px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  
+  /* Transitions */
+  --transition-fast: all 0.15s ease;
+  --transition-normal: all 0.25s ease;
+  --transition-slow: all 0.35s ease;
+}

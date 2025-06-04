@@ -1,134 +1,29 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import './style/main.css';
-// Pages
-import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import Planning from './pages/Planning';
-import Exchanges from './pages/Exchanges';
-import Profile from './pages/Profile';
-
-// Composant pour protéger les routes
-const PrivateRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
-  
-  if (loading) {
-    return <div>Chargement...</div>;
-  }
-  
-  return isAuthenticated ? children : <Navigate to="/login" />;
-};
-
-// Composant pour rediriger si déjà connecté
-const PublicRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
-  
-  if (loading) {
-    return <div>Chargement...</div>;
-  }
-  
-  return !isAuthenticated ? children : <Navigate to="/dashboard" />;
-};
-
-// Thème Material-UI
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
-    },
-    background: {
-      default: '#f5f5f5',
-    },
-  },
-  typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-    h4: {
-      fontWeight: 600,
-    },
-    h5: {
-      fontWeight: 600,
-    },
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: 'none',
-          borderRadius: 8,
-        },
-      },
-    },
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          borderRadius: 12,
-        },
-      },
-    },
-  },
-});
+import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
+import Layout from './components/Layout';
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
+import Planning from './components/Planning';
+import Exchanges from './components/Exchanges';
+import Profile from './components/Profile';
+import PrivateRoute from './components/PrivateRoute';
+import './App.css';
 
 function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <ThemeProvider>
       <AuthProvider>
         <Router>
           <Routes>
-            {/* Route publique - Login */}
-            <Route
-              path="/login"
-              element={
-                <PublicRoute>
-                  <Login />
-                </PublicRoute>
-              }
-            />
-            
-            {/* Routes privées */}
-            <Route
-              path="/dashboard"
-              element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              }
-            />
-            
-            <Route
-              path="/planning"
-              element={
-                <PrivateRoute>
-                  <Planning />
-                </PrivateRoute>
-              }
-            />
-            
-            <Route
-              path="/exchanges"
-              element={
-                <PrivateRoute>
-                  <Exchanges />
-                </PrivateRoute>
-              }
-            />
-            
-            <Route
-              path="/profile"
-              element={
-                <PrivateRoute>
-                  <Profile />
-                </PrivateRoute>
-              }
-            />
-            
-            {/* Redirection par défaut */}
-            <Route path="/" element={<Navigate to="/dashboard" />} />
+            <Route path="/login" element={<Login />} />
+            <Route element={<PrivateRoute />}>
+              <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
+              <Route path="/planning" element={<Layout><Planning /></Layout>} />
+              <Route path="/exchanges" element={<Layout><Exchanges /></Layout>} />
+              <Route path="/profile" element={<Layout><Profile /></Layout>} />
+              <Route path="/" element={<Navigate to="/dashboard\" replace />} />
+            </Route>
           </Routes>
         </Router>
       </AuthProvider>
