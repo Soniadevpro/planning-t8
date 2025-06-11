@@ -7,11 +7,29 @@ export default {
   theme: {
     extend: {
       colors: {
-        'ratp-blue': '#004494',
-        'ratp-green': '#00A566',
+        ratp: {
+          blue: '#003f7f',
+          'blue-light': '#1e5bb8',
+          green: '#00a86b',
+          'green-light': '#33b884',
+          gray: {
+            50: '#f8fafc',
+            100: '#f1f5f9',
+            200: '#e2e8f0',
+            300: '#cbd5e1',
+            400: '#94a3b8',
+            500: '#64748b',
+            600: '#475569',
+            700: '#334155',
+            800: '#1e293b',
+            900: '#0f172a',
+          }
+        }
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', 'sans-serif'],
       },
     },
   },
   plugins: [],
-  darkMode: 'class',
 }
