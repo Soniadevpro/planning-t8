@@ -22,6 +22,8 @@ from .serializers import (
 class DemandeEchangeListCreateView(generics.ListCreateAPIView):
     """API pour lister et créer des demandes d'échange"""
     permission_classes = [permissions.IsAuthenticated]
+
+    
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -85,17 +87,17 @@ def mes_demandes_envoyees(request):
     return Response(serializer.data)
 
 
-@api_view(['GET'])
+@api_view(['GET']) 
 @permission_classes([permissions.IsAuthenticated])
 def mes_demandes_recues(request):
     """API pour récupérer les demandes reçues par l'utilisateur"""
     demandes = DemandeEchange.objects.filter(
         destinataire=request.user
     ).select_related(
-        'demandeur', 'planning_demandeur', 'planning_destinataire'
+        'demandeur', 'planning_demandeur', 'planning_destinataire', 'destinataire'  # Ajouter 'destinataire'
     ).order_by('-created_at')
     
-    serializer = DemandeEchangeListSerializer(demandes, many=True)
+    serializer = DemandeEchangeSerializer(demandes, many=True)  # Changer pour le serializer complet
     return Response(serializer.data)
 
 

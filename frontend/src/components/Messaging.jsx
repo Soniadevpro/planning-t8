@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import '../styles/messaging.css';
+
 
 const Messaging = () => {
   const { user, logout } = useAuth();
