@@ -1,85 +1,41 @@
-import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import ProfilePhoto from './ProfilePhoto';
-import '../styles/profile.css';
-
+import React, { useState } from 'react'
+import { useAuth } from '../contexts/AuthContext'
+import ProfilePhoto from './ProfilePhoto'
+import "../styles/profil.css"
 const Profile = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth()
   const [formData, setFormData] = useState({
     firstName: user?.first_name || '',
     lastName: user?.last_name || '',
     email: user?.email || '',
     phone: user?.phone || '',
     matricule: user?.matricule || ''
-  });
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
+  })
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
-    });
-  };
+    })
+  }
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault()
     // Logique de sauvegarde à implémenter
-    console.log('Données du formulaire:', formData);
-  };
+    console.log('Données du formulaire:', formData)
+    alert('Profil mis à jour avec succès !')
+  }
 
   const getRoleInfo = () => {
-    if (user?.role === 'admin') return { label: 'Administrateur', icon: '👑' };
-    if (user?.role === 'superviseur') return { label: 'Superviseur', icon: '👨‍💼' };
-    return { label: 'Agent', icon: '👷‍♂️' };
-  };
+    if (user?.role === 'admin') return { label: 'Administrateur', icon: '👑' }
+    if (user?.role === 'superviseur') return { label: 'Superviseur', icon: '👨‍💼' }
+    return { label: 'Agent', icon: '👷‍♂️' }
+  }
 
-  const roleInfo = getRoleInfo();
+  const roleInfo = getRoleInfo()
 
   return (
     <div className="profile-container">
-      {/* Header */}
-      <header className="profile-header">
-        <div className="header-content">
-          <div className="header-left">
-            <h1>
-              <i className="far fa-user-circle"></i>
-              <span>Mon Profil</span>
-            </h1>
-            <p>Gérez vos informations personnelles</p>
-          </div>
-          
-          <nav className="header-nav">
-            <button 
-              className="nav-btn"
-              onClick={() => navigate('/dashboard')}
-            >
-              <i className="fas fa-tachometer-alt"></i>
-              Dashboard
-            </button>
-            <button 
-              className="nav-btn"
-              onClick={() => navigate('/planning')}
-            >
-              <i className="far fa-calendar-alt"></i>
-              Planning
-            </button>
-            <button 
-              className="nav-btn logout-btn"
-              onClick={handleLogout}
-            >
-              <i className="fas fa-sign-out-alt"></i>
-              Déconnexion
-            </button>
-          </nav>
-        </div>
-      </header>
-
       <div className="profile-content">
         {/* Statistiques */}
         <div className="stats-grid">
@@ -114,39 +70,41 @@ const Profile = () => {
           </div>
 
           <form className="profile-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="form-label" htmlFor="firstName">Prénom</label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                className="form-control"
-                value={formData.firstName}
-                onChange={handleChange}
-                placeholder="Votre prénom"
-              />
+            <div className="form-row">
+              <div className="form-group">
+                <label className="label" htmlFor="firstName">Prénom</label>
+                <input
+                  type="text"
+                  id="firstName"
+                  name="firstName"
+                  className="input"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  placeholder="Votre prénom"
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="label" htmlFor="lastName">Nom</label>
+                <input
+                  type="text"
+                  id="lastName"
+                  name="lastName"
+                  className="input"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  placeholder="Votre nom"
+                />
+              </div>
             </div>
 
             <div className="form-group">
-              <label className="form-label" htmlFor="lastName">Nom</label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                className="form-control"
-                value={formData.lastName}
-                onChange={handleChange}
-                placeholder="Votre nom"
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label" htmlFor="email">Email</label>
+              <label className="label" htmlFor="email">Email</label>
               <input
                 type="email"
                 id="email"
                 name="email"
-                className="form-control"
+                className="input"
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="votre.email@ratp.fr"
@@ -154,12 +112,12 @@ const Profile = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label" htmlFor="phone">Téléphone</label>
+              <label className="label" htmlFor="phone">Téléphone</label>
               <input
                 type="tel"
                 id="phone"
                 name="phone"
-                className="form-control"
+                className="input"
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="Votre numéro de téléphone"
@@ -167,12 +125,12 @@ const Profile = () => {
             </div>
 
             <div className="form-group">
-              <label className="form-label" htmlFor="matricule">Matricule</label>
+              <label className="label" htmlFor="matricule">Matricule</label>
               <input
                 type="text"
                 id="matricule"
                 name="matricule"
-                className="form-control"
+                className="input"
                 value={formData.matricule}
                 onChange={handleChange}
                 placeholder="Votre matricule"
@@ -182,20 +140,16 @@ const Profile = () => {
             </div>
 
             <div className="profile-actions">
-              <button type="button" className="action-btn btn-cancel" onClick={() => navigate('/dashboard')}>
-                <i className="fas fa-times"></i>
-                Annuler
-              </button>
-              <button type="submit" className="action-btn btn-save">
+              <button type="submit" className="btn btn-primary">
                 <i className="fas fa-save"></i>
-                Enregistrer
+                Enregistrer les modifications
               </button>
             </div>
           </form>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Profile;
+export default Profile

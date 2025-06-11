@@ -1,75 +1,75 @@
-import React, { useState, useRef } from 'react';
-
+import React, { useState, useRef } from 'react'
+import "../styles/profil_photo.css"
 const ProfilePhoto = ({ user, onPhotoChange }) => {
-  const [showModal, setShowModal] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState(null);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const fileInputRef = useRef(null);
+  const [showModal, setShowModal] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState(null)
+  const [selectedFile, setSelectedFile] = useState(null)
+  const fileInputRef = useRef(null)
 
   const getInitials = () => {
-    if (!user) return '?';
+    if (!user) return '?'
     if (user.first_name) {
-      return user.first_name.charAt(0).toUpperCase();
+      return user.first_name.charAt(0).toUpperCase()
     }
-    return user.username.charAt(0).toUpperCase();
-  };
+    return user.username.charAt(0).toUpperCase()
+  }
 
   const handleOpenModal = () => {
-    setShowModal(true);
-    setPreviewUrl(null);
-    setSelectedFile(null);
-  };
+    setShowModal(true)
+    setPreviewUrl(null)
+    setSelectedFile(null)
+  }
 
   const handleCloseModal = () => {
-    setShowModal(false);
-    setPreviewUrl(null);
-    setSelectedFile(null);
-  };
+    setShowModal(false)
+    setPreviewUrl(null)
+    setSelectedFile(null)
+  }
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const file = e.target.files[0]
+    if (!file) return
 
-    setSelectedFile(file);
+    setSelectedFile(file)
     
-    const reader = new FileReader();
+    const reader = new FileReader()
     reader.onloadend = () => {
-      setPreviewUrl(reader.result);
-    };
-    reader.readAsDataURL(file);
-  };
+      setPreviewUrl(reader.result)
+    }
+    reader.readAsDataURL(file)
+  }
 
   const handleUploadClick = () => {
-    fileInputRef.current.click();
-  };
+    fileInputRef.current.click()
+  }
 
   const handleDragOver = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
+    e.preventDefault()
+    e.stopPropagation()
+  }
 
   const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    e.preventDefault()
+    e.stopPropagation()
     
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const file = e.dataTransfer.files[0];
-      setSelectedFile(file);
+      const file = e.dataTransfer.files[0]
+      setSelectedFile(file)
       
-      const reader = new FileReader();
+      const reader = new FileReader()
       reader.onloadend = () => {
-        setPreviewUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
+        setPreviewUrl(reader.result)
+      }
+      reader.readAsDataURL(file)
     }
-  };
+  }
 
   const handleSavePhoto = () => {
     if (selectedFile && onPhotoChange) {
-      onPhotoChange(selectedFile, previewUrl);
-      setShowModal(false);
+      onPhotoChange(selectedFile, previewUrl)
+      setShowModal(false)
     }
-  };
+  }
 
   return (
     <>
@@ -148,7 +148,7 @@ const ProfilePhoto = ({ user, onPhotoChange }) => {
         </div>
       )}
     </>
-  );
-};
+  )
+}
 
-export default ProfilePhoto;
+export default ProfilePhoto

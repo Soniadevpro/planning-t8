@@ -1,155 +1,321 @@
-import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import '../styles/exchanges.css';
-
+import React, { useState, useEffect } from 'react'
+import { useAuth } from '../contexts/AuthContext'
+import { format, parseISO } from 'date-fns'
+import { fr } from 'date-fns/locale'
+import CreateExchangeModal from './CreateExchangeModal'
+import exchangesService from '../services/exchanges'
+import serviceTypesHelper from '../utils/serviceTypesHelper'
+import "../styles/exchanges.css"
 const Exchanges = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('pending');
+  const { user, isAdmin, isSuperviseur } = useAuth()
+  
+  // États du composant
+  const [activeTab, setActiveTab] = useState('received')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  
+  // Données des échanges
+  const [demandesRecues, setDemandesRecues] = useState([])
+  const [demandesEnvoyees, setDemandesEnvoyees] = useState([])
+  const [demandesATraiter, setDemandesATraiter] = useState([])
+  
+  // Modal de création
+  const [showCreateModal, setShowCreateModal] = useState(false)
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
-
-  // Données simulées pour les échanges
-  const exchanges = [
-    {
-      id: 1,
-      date: '2025-05-15',
-      type: 'matin',
-      status: 'pending',
-      requestedBy: 'Jean Dupont',
-      proposedDate: '2025-05-20',
-      proposedType: 'après-midi'
-    },
-    {
-      id: 2,
-      date: '2025-05-18',
-      type: 'journée',
-      status: 'accepted',
-      requestedBy: 'Marie Martin',
-      proposedDate: '2025-05-22',
-      proposedType: 'journée'
+  // Charger les demandes selon le rôle et l'onglet
+  const loadDemandes = async () => {
+    setLoading(true)
+    setError('')
+    
+    try {
+      // Charger selon le rôle
+      if (isAdmin() || isSuperviseur()) {
+        const demandesATraiterData = await exchangesService.getDemandesATraiter()
+        setDemandesATraiter(demandesATraiterData)
+      }
+      
+      // Pour tous : demandes reçues et envoyées
+      const [recues, envoyees] = await Promise.all([
+        exchangesService.getMesDemandesRecues(),
+        exchangesService.getMesDemandesEnvoyees()
+      ])
+      
+      setDemandesRecues(recues)
+      setDemandesEnvoyees(envoyees)
+      
+    } catch (err) {
+      setError('Erreur lors du chargement des demandes')
+      console.error(err)
+    } finally {
+      setLoading(false)
     }
-  ];
+  }
+
+  // Charger les données au montage
+  useEffect(() => {
+    loadDemandes()
+  }, [])
+
+  // Répondre à une demande (accepter/refuser)
+  const handleRepondre = async (demandeId, action, commentaire = '') => {
+    try {
+      await exchangesService.repondreDemande(demandeId, action, commentaire)
+      await loadDemandes() // Recharger les données
+    } catch (err) {
+      alert(`Erreur : ${err.message}`)
+    }
+  }
+
+  // Décision superviseur
+  const handleDecisionSuperviseur = async (demandeId, action, commentaire = '') => {
+    try {
+      await exchangesService.decisionSuperviseur(demandeId, action, commentaire)
+      await loadDemandes() // Recharger les données
+    } catch (err) {
+      alert(`Erreur : ${err.message}`)
+    }
+  }
+
+  // Formater une date
+  const formatDate = (dateStr) => {
+    return format(parseISO(dateStr), 'EEEE d MMMM', { locale: fr })
+  }
+
+  // Obtenir les informations d'un service
+  const getServiceInfo = (typeService) => {
+    return serviceTypesHelper.getServiceInfo(typeService)
+  }
+
+  // Obtenir les données à afficher selon l'onglet
+  const getCurrentData = () => {
+    switch (activeTab) {
+      case 'received':
+        return demandesRecues
+      case 'sent':
+        return demandesEnvoyees
+      case 'supervisor':
+        return demandesATraiter
+      default:
+        return []
+    }
+  }
+
+  const currentData = getCurrentData()
+
+  // Composant carte de demande moderne
+  const DemandeCard = ({ demande }) => {
+    const isDemandeur = demande.demandeur === user.id
+    const isDestinataire = demande.destinataire === user.id
+    const isSuperviseurCard = isAdmin() || isSuperviseur()
+    
+    const serviceDemandeur = getServiceInfo(demande.type_service_demandeur)
+    const serviceDestinataire = getServiceInfo(demande.type_service_destinataire)
+    
+    const statutColor = exchangesService.getStatutColor(demande.statut)
+    const statutLabel = exchangesService.getStatutLabel(demande.statut)
+
+    return (
+      <div className="exchange-card">
+        {/* En-tête avec statut */}
+        <div className="exchange-header">
+          <div className="exchange-user">
+            <div className="user-avatar">
+              <span>
+                {isDemandeur ? demande.destinataire_name?.charAt(0) : demande.demandeur_name?.charAt(0)}
+              </span>
+            </div>
+            <div>
+              <h3>
+                {isDemandeur ? demande.destinataire_name : demande.demandeur_name}
+              </h3>
+              <p>
+                {format(parseISO(demande.created_at), 'dd/MM/yyyy à HH:mm')}
+              </p>
+            </div>
+          </div>
+          
+          <span 
+            className="status-badge"
+            style={{ backgroundColor: `${statutColor}15`, color: statutColor }}
+          >
+            {statutLabel}
+          </span>
+        </div>
+
+        {/* Contenu de l'échange */}
+        <div className="exchange-content">
+          <div className="exchange-details">
+            {/* Créneau proposé */}
+            <div className="exchange-slot">
+              <div className="slot-label">
+                {isDemandeur ? 'Je propose' : 'Propose'}
+              </div>
+              <div className="slot-date">
+                {formatDate(demande.date_demandeur)}
+              </div>
+              <div className="slot-service">
+                <span className="service-icon">{serviceDemandeur.icon}</span>
+                <span className="service-name">{serviceDemandeur.label}</span>
+                {serviceDemandeur.horaires && (
+                  <span className="service-hours">{serviceDemandeur.horaires}</span>
+                )}
+              </div>
+            </div>
+
+            {/* Flèche d'échange */}
+            <div className="exchange-arrow">
+              <i className="fas fa-exchange-alt"></i>
+            </div>
+
+            {/* Créneau souhaité */}
+            <div className="exchange-slot">
+              <div className="slot-label">
+                {isDemandeur ? 'Je veux' : 'Veut'}
+              </div>
+              <div className="slot-date">
+                {formatDate(demande.date_destinataire)}
+              </div>
+              <div className="slot-service">
+                <span className="service-icon">{serviceDestinataire.icon}</span>
+                <span className="service-name">{serviceDestinataire.label}</span>
+                {serviceDestinataire.horaires && (
+                  <span className="service-hours">{serviceDestinataire.horaires}</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="exchange-actions">
+            {/* Actions pour le destinataire */}
+            {isDestinataire && demande.peut_etre_accepte_par_agent && (
+              <>
+                <button
+                  onClick={() => handleRepondre(demande.id, 'refuse')}
+                  className="btn btn-danger"
+                >
+                  Refuser
+                </button>
+                <button
+                  onClick={() => handleRepondre(demande.id, 'accept')}
+                  className="btn btn-success"
+                >
+                  Accepter
+                </button>
+              </>
+            )}
+
+            {/* Actions pour le superviseur */}
+            {isSuperviseurCard && demande.peut_etre_valide_par_superviseur && (
+              <>
+                <button
+                  onClick={() => handleDecisionSuperviseur(demande.id, 'refuse')}
+                  className="btn btn-danger"
+                >
+                  Refuser
+                </button>
+                <button
+                  onClick={() => handleDecisionSuperviseur(demande.id, 'validate')}
+                  className="btn btn-success"
+                >
+                  Valider
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="exchanges-container">
-      {/* Header */}
-      <header className="exchanges-header">
-        <div className="header-content">
-          <div className="header-left">
-            <h1>
-              <i className="fas fa-exchange-alt"></i>
-              <span>Échanges de Service</span>
-            </h1>
-            <p>Bienvenue, {user?.first_name || user?.username}</p>
-          </div>
-          
-          <nav className="header-nav">
+      <div className="exchanges-content">
+        {/* En-tête avec onglets */}
+        <div className="exchanges-header">
+          <div className="tabs">
             <button 
-              className="nav-btn"
-              onClick={() => navigate('/dashboard')}
+              onClick={() => setActiveTab('received')}
+              className={`tab ${activeTab === 'received' ? 'active' : ''}`}
             >
-              <i className="fas fa-tachometer-alt"></i>
-              Dashboard
+              Reçues ({demandesRecues.length})
             </button>
+            
             <button 
-              className="nav-btn"
-              onClick={() => navigate('/planning')}
+              onClick={() => setActiveTab('sent')}
+              className={`tab ${activeTab === 'sent' ? 'active' : ''}`}
             >
-              <i className="far fa-calendar-alt"></i>
-              Planning
+              Envoyées ({demandesEnvoyees.length})
             </button>
-            <button 
-              className="nav-btn logout-btn"
-              onClick={handleLogout}
-            >
-              <i className="fas fa-sign-out-alt"></i>
-              Déconnexion
-            </button>
-          </nav>
-        </div>
-      </header>
 
-      <div className="container">
-        {/* Onglets */}
-        <div className="exchanges-tabs">
+            {(isAdmin() || isSuperviseur()) && (
+              <button 
+                onClick={() => setActiveTab('supervisor')}
+                className={`tab ${activeTab === 'supervisor' ? 'active' : ''}`}
+              >
+                À valider ({demandesATraiter.length})
+              </button>
+            )}
+          </div>
+
           <button 
-            className={`tab-btn ${activeTab === 'pending' ? 'active' : ''}`}
-            onClick={() => setActiveTab('pending')}
-          >
-            <i className="fas fa-clock"></i>
-            En attente
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`}
-            onClick={() => setActiveTab('history')}
-          >
-            <i className="fas fa-history"></i>
-            Historique
-          </button>
-          <button 
-            className="tab-btn create-btn"
-            onClick={() => {/* Logique pour créer un nouvel échange */}}
+            onClick={() => setShowCreateModal(true)}
+            className="btn btn-primary"
           >
             <i className="fas fa-plus"></i>
             Nouvelle demande
           </button>
         </div>
 
-        {/* Liste des échanges */}
-        <div className="exchanges-list">
-          {exchanges.map(exchange => (
-            <div key={exchange.id} className="exchange-card">
-              <div className="exchange-header">
-                <div className="exchange-date">
-                  <i className="far fa-calendar"></i>
-                  {exchange.date}
-                </div>
-                <div className={`exchange-status ${exchange.status}`}>
-                  {exchange.status === 'pending' ? 'En attente' : 'Accepté'}
-                </div>
-              </div>
-              
-              <div className="exchange-details">
-                <div className="exchange-service">
-                  <strong>Service proposé :</strong>
-                  <span>{exchange.type}</span>
-                </div>
-                <div className="exchange-arrow">
-                  <i className="fas fa-exchange-alt"></i>
-                </div>
-                <div className="exchange-service">
-                  <strong>Service souhaité :</strong>
-                  <span>{exchange.proposedType}</span>
-                </div>
-              </div>
-              
-              <div className="exchange-footer">
-                <div className="exchange-user">
-                  <i className="far fa-user"></i>
-                  {exchange.requestedBy}
-                </div>
-                <div className="exchange-actions">
-                  <button className="action-btn accept">
-                    <i className="fas fa-check"></i>
-                    Accepter
-                  </button>
-                  <button className="action-btn reject">
-                    <i className="fas fa-times"></i>
-                    Refuser
-                  </button>
-                </div>
-              </div>
+        {/* Contenu principal */}
+        <div className="exchanges-main">
+          {loading ? (
+            <div className="loading-center">
+              <div className="spinner"></div>
             </div>
-          ))}
+          ) : error ? (
+            <div className="alert alert-error">
+              <div>Une erreur est survenue</div>
+              <div>{error}</div>
+            </div>
+          ) : currentData.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">
+                <i className="fas fa-exchange-alt"></i>
+              </div>
+              <h3>Aucune demande</h3>
+              <p>
+                {activeTab === 'received' && "Vous n'avez pas reçu de demandes d'échange."}
+                {activeTab === 'sent' && "Vous n'avez pas encore envoyé de demandes."}
+                {activeTab === 'supervisor' && "Aucune demande en attente de validation."}
+              </p>
+              {activeTab !== 'supervisor' && (
+                <button 
+                  onClick={() => setShowCreateModal(true)}
+                  className="btn btn-primary"
+                >
+                  Créer une demande
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="exchanges-list">
+              {currentData.map(demande => (
+                <DemandeCard key={demande.id} demande={demande} />
+              ))}
+            </div>
+          )}
         </div>
       </div>
-    </div>
-  );
-};
 
-export default Exchanges;
+      {/* Modal de création */}
+      <CreateExchangeModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={loadDemandes}
+      />
+    </div>
+  )
+}
+
+export default Exchanges

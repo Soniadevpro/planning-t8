@@ -1,81 +1,31 @@
-import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import ProfilePhoto from './ProfilePhoto';
-import '../styles/dashboard.css';
-
+import React, { useState } from 'react'
+import { useAuth } from '../contexts/AuthContext'
+import { useNavigate } from 'react-router-dom'
+import ProfilePhoto from './ProfilePhoto'
+import "../styles/dashboard.css"
 const Dashboard = () => {
-  const { user, logout, isAdmin, isSuperviseur } = useAuth();
-  const navigate = useNavigate();
-  const [userPhoto, setUserPhoto] = useState(user?.photoUrl || null);
-
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
-  };
+  const { user, isAdmin, isSuperviseur } = useAuth()
+  const navigate = useNavigate()
+  const [userPhoto, setUserPhoto] = useState(user?.photoUrl || null)
 
   const getRoleInfo = () => {
-    if (isAdmin()) return { label: 'Administrateur', icon: '👑', class: 'admin' };
-    if (isSuperviseur()) return { label: 'Superviseur', icon: '👨‍💼', class: 'superviseur' };
-    return { label: 'Agent', icon: '👷‍♂️', class: 'agent' };
-  };
+    if (isAdmin()) return { label: 'Administrateur', icon: '👑', class: 'admin' }
+    if (isSuperviseur()) return { label: 'Superviseur', icon: '👨‍💼', class: 'superviseur' }
+    return { label: 'Agent', icon: '👷‍♂️', class: 'agent' }
+  }
 
-  const roleInfo = getRoleInfo();
+  const roleInfo = getRoleInfo()
 
   const handlePhotoChange = (file, previewUrl) => {
-    // Dans une application réelle, vous téléchargeriez le fichier vers votre API
-    // puis récupéreriez l'URL de la photo téléchargée pour l'afficher
-    // Ici nous utilisons simplement l'URL de prévisualisation comme simulacre
-    setUserPhoto(previewUrl);
-    
-    // Mise à jour fictive du contexte utilisateur
+    setUserPhoto(previewUrl)
     if (user) {
-      user.photoUrl = previewUrl;
+      user.photoUrl = previewUrl
     }
-  };
+  }
 
   return (
     <div className="dashboard-container">
-      {/* Header */}
-      <header className="dashboard-header">
-        <div className="container">
-          <div className="flex justify-between items-center flex-wrap gap-3">
-            <div>
-              <h1 className="dashboard-title">
-                <i className="fas fa-chart-line"></i>
-                Tableau de bord <span>T8</span>
-              </h1>
-              <p className="dashboard-subtitle">Bienvenue, {user?.first_name || user?.username} !</p>
-            </div>
-            
-            <div className="dashboard-actions">
-              <button 
-                className="dashboard-action-btn"
-                onClick={() => navigate('/planning')}
-              >
-                <i className="far fa-calendar-alt"></i>
-                Planning
-              </button>
-              <button 
-                className="dashboard-action-btn"
-                onClick={() => navigate('/exchanges')}
-              >
-                <i className="fas fa-exchange-alt"></i>
-                Échanges
-              </button>
-              <button 
-                className="dashboard-action-btn danger"
-                onClick={handleLogout}
-              >
-                <i className="fas fa-sign-out-alt"></i>
-                Déconnexion
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <div className="container">
+      <div className="dashboard-content">
         {/* Carte utilisateur */}
         <div className="user-card">
           <ProfilePhoto user={user} onPhotoChange={handlePhotoChange} />
@@ -85,7 +35,6 @@ const Dashboard = () => {
             
             <div className="user-detail">
               <strong>Rôle :</strong>
-              {roleInfo.label}
               <span className={`role-badge ${roleInfo.class}`}>
                 {roleInfo.icon} {roleInfo.label}
               </span>
@@ -198,7 +147,7 @@ const Dashboard = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default Dashboard
