@@ -1,33 +1,50 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
-import { ThemeProvider } from './contexts/ThemeContext';
-import Layout from './components/Layout';
-import Login from './components/Login';
-import Dashboard from './components/Dashboard';
-import Planning from './components/Planning';
-import Exchanges from './components/Exchanges';
-import Profile from './components/Profile';
-import PrivateRoute from './components/PrivateRoute';
-import './App.css';
+
+// Components
+import Layout from './components/layout/Layout';
+import LoginForm from './components/auth/LoginForm';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+
+// Pages
+import Dashboard from './pages/Dashboard';
+import Planning from './pages/Planning';
+import Exchanges from './pages/Exchanges';
+import Profile from './pages/Profile';
+
+// Import Tailwind CSS
+import './index.css';
 
 function App() {
   return (
-    <ThemeProvider>
-      <AuthProvider>
-        <Router>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route element={<PrivateRoute />}>
-              <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-              <Route path="/planning" element={<Layout><Planning /></Layout>} />
-              <Route path="/exchanges" element={<Layout><Exchanges /></Layout>} />
-              <Route path="/profile" element={<Layout><Profile /></Layout>} />
-              <Route path="/" element={<Navigate to="/dashboard\" replace />} />
-            </Route>
-          </Routes>
-        </Router>
-      </AuthProvider>
-    </ThemeProvider>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Route de connexion */}
+          <Route path="/login" element={<LoginForm />} />
+          
+          {/* Routes protégées */}
+          <Route path="/" element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }>
+            <Route index element={<Dashboard />} />
+            <Route path="planning" element={<Planning />} />
+            <Route path="exchanges" element={<Exchanges />} />
+            <Route path="profile" element={<Profile />} />
+            
+            {/* Routes superviseur/admin - à implémenter */}
+            <Route path="supervision" element={<div className="p-6 text-center text-ratp-gray-500">Page Supervision - À implémenter</div>} />
+            <Route path="team-planning" element={<div className="p-6 text-center text-ratp-gray-500">Page Planning Équipe - À implémenter</div>} />
+            <Route path="statistics" element={<div className="p-6 text-center text-ratp-gray-500">Page Statistiques - À implémenter</div>} />
+          </Route>
+          
+          {/* Redirection par défaut */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 
