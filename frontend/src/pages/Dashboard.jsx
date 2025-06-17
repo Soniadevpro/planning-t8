@@ -34,25 +34,23 @@ const Dashboard = () => {
       const startWeek = startOfWeek(today, { locale: fr });
       const endWeek = endOfWeek(today, { locale: fr });
 
-      // Récupérer les plannings de la semaine
       const plannings = await planningService.getPlannings({
         date_debut: format(startWeek, 'yyyy-MM-dd'),
         date_fin: format(endWeek, 'yyyy-MM-dd')
       });
 
-      // Filtrer les plannings selon le rôle
       const filteredPlannings = planningService.filterPlanningsByUser(
-        plannings, 
-        user.id, 
+        plannings,
+        user.id,
         user.role
       );
 
-      // Trouver le prochain service
-      const prochainService = filteredPlannings
+      const mesPlannings = filteredPlannings.filter(p => p.agent === user.id);
+
+      const prochainService = mesPlannings
         .filter(p => new Date(p.date) >= today && p.type_service !== 'repos')
         .sort((a, b) => new Date(a.date) - new Date(b.date))[0];
 
-      // Récupérer les demandes en attente (pour agents)
       let demandesEnAttente = 0;
       let demandesRecues = 0;
 
@@ -60,7 +58,7 @@ const Dashboard = () => {
         try {
           const envoyees = await exchangesService.getMesDemandesEnvoyees();
           const recues = await exchangesService.getMesDemandesRecues();
-          
+
           demandesEnAttente = envoyees.filter(d => d.statut === 'en_attente').length;
           demandesRecues = recues.filter(d => d.statut === 'en_attente').length;
         } catch (err) {
@@ -70,7 +68,7 @@ const Dashboard = () => {
 
       setDashboardData({
         prochainService,
-        planningsSemaine: filteredPlannings,
+        planningsSemaine: mesPlannings,
         demandesEnAttente,
         demandesRecues,
         statistiques: null
@@ -104,7 +102,7 @@ const Dashboard = () => {
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
-    if (isToday(date)) return 'Aujourd\'hui';
+    if (isToday(date)) return "Aujourd'hui";
     if (isTomorrow(date)) return 'Demain';
     return format(date, 'EEEE d MMMM', { locale: fr });
   };
@@ -130,9 +128,7 @@ const Dashboard = () => {
 
       <ErrorMessage message={error} />
 
-      {/* Statistiques rapides */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Prochain service */}
         <div className="bg-white overflow-hidden shadow rounded-lg">
           <div className="p-5">
             <div className="flex items-center">
@@ -164,7 +160,6 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Services cette semaine */}
         <div className="bg-white overflow-hidden shadow rounded-lg">
           <div className="p-5">
             <div className="flex items-center">
@@ -185,60 +180,57 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Demandes envoyées (Agents) */}
         {user.role === 'agent' && (
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <RefreshCw className="h-6 w-6 text-yellow-500" />
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-ratp-gray-500 truncate">
-                      Demandes en attente
-                    </dt>
-                    <dd className="text-lg font-medium text-ratp-gray-900">
-                      {dashboardData.demandesEnAttente}
-                    </dd>
-                  </dl>
+          <>
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <RefreshCw className="h-6 w-6 text-yellow-500" />
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt className="text-sm font-medium text-ratp-gray-500 truncate">
+                        Demandes en attente
+                      </dt>
+                      <dd className="text-lg font-medium text-ratp-gray-900">
+                        {dashboardData.demandesEnAttente}
+                      </dd>
+                    </dl>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
 
-        {/* Demandes reçues (Agents) */}
-        {user.role === 'agent' && (
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-5">
-              <div className="flex items-center">
-                <div className="flex-shrink-0">
-                  <Users className="h-6 w-6 text-blue-500" />
-                </div>
-                <div className="ml-5 w-0 flex-1">
-                  <dl>
-                    <dt className="text-sm font-medium text-ratp-gray-500 truncate">
-                      Demandes reçues
-                    </dt>
-                    <dd className="text-lg font-medium text-ratp-gray-900">
-                      {dashboardData.demandesRecues}
-                    </dd>
-                  </dl>
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="p-5">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <Users className="h-6 w-6 text-blue-500" />
+                  </div>
+                  <div className="ml-5 w-0 flex-1">
+                    <dl>
+                      <dt className="text-sm font-medium text-ratp-gray-500 truncate">
+                        Demandes reçues
+                      </dt>
+                      <dd className="text-lg font-medium text-ratp-gray-900">
+                        {dashboardData.demandesRecues}
+                      </dd>
+                    </dl>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </>
         )}
       </div>
 
-      {/* Planning de la semaine */}
       <div className="bg-white shadow rounded-lg">
         <div className="px-4 py-5 sm:p-6">
           <h3 className="text-lg leading-6 font-medium text-ratp-gray-900 mb-4">
             Planning de la semaine
           </h3>
-          
+
           {dashboardData.planningsSemaine.length > 0 ? (
             <div className="space-y-3">
               {dashboardData.planningsSemaine
@@ -256,7 +248,6 @@ const Dashboard = () => {
                         {getServiceTypeLabel(planning.type_service)}
                       </Badge>
                     </div>
-                    
                     {planning.heure_debut && planning.heure_fin && (
                       <div className="text-sm text-ratp-gray-500">
                         {planning.heure_debut} - {planning.heure_fin}
@@ -271,20 +262,6 @@ const Dashboard = () => {
             </p>
           )}
         </div>
-      </div>
-
-      {/* Messages de bienvenue selon le rôle */}
-      <div className="bg-ratp-blue rounded-lg p-6 text-white">
-        <h4 className="text-lg font-semibold mb-2">
-          {user.role === 'agent' && 'Espace Agent'}
-          {user.role === 'superviseur' && 'Espace Superviseur'}
-          {user.role === 'admin' && 'Espace Administrateur'}
-        </h4>
-        <p className="text-ratp-blue-light">
-          {user.role === 'agent' && 'Consultez vos plannings, demandez des échanges de créneaux et gérez votre emploi du temps.'}
-          {user.role === 'superviseur' && 'Validez les demandes d\'échanges et supervisez les plannings de votre équipe.'}
-          {user.role === 'admin' && 'Administrez l\'application, gérez les utilisateurs et consultez les statistiques.'}
-        </p>
       </div>
     </div>
   );

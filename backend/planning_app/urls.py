@@ -11,5 +11,7 @@ urlpatterns = [
     
     # Vues spécialisées
     path('planning/calendrier/', views.planning_calendrier, name='api_planning_calendrier'),
+    path('plannings/collectif/', views.planning_collectif, name='planning_collectif'),
     path('planning/statistiques/', views.statistiques_planning, name='api_planning_statistiques'),
+    path('plannings/user/', views.planning_user, name='planning_user'),
 ]

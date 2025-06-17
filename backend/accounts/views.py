@@ -102,3 +102,4 @@ class UserListView(generics.ListAPIView):
             is_active=True, 
             is_active_agent=True
         ).exclude(id=self.request.user.id)
+    

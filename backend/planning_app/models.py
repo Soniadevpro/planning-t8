@@ -45,7 +45,13 @@ class Planning(models.Model):
         choices=TYPE_SERVICE_CHOICES,
         verbose_name="Type de service"
     )
-    
+    poste = models.CharField(
+        max_length=10,
+        verbose_name="Poste de travail",
+        help_text="Code du poste (ex: 31, 750, R, CCF...)",
+        blank=True,
+        null=True
+    )
     heure_debut = models.TimeField(
         blank=True, 
         null=True, 

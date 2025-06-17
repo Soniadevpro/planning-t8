@@ -141,6 +141,13 @@ class PlanningService {
     // Admin et superviseur voient tout
     return plannings;
   }
+
+
+
+  async getPlanningsByAgent(agentId) {
+  const response = await api.get(`/plannings/?agent=${agentId}`);
+  return response.data;
+}
 }
 
 export default new PlanningService();

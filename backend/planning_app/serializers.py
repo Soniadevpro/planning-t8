@@ -13,7 +13,7 @@ class PlanningSerializer(serializers.ModelSerializer):
     class Meta:
         model = Planning
         fields = [
-            'id', 'agent', 'agent_info', 'date', 'type_service', 'type_service_display',
+            'id', 'agent', 'agent_info', 'date', 'type_service', 'type_service_display', 'poste',
             'heure_debut', 'heure_fin', 'ligne', 'notes', 
             'duree_service', 'est_jour_travaille', 
             'created_at', 'updated_at', 'created_by', 'updated_by'
@@ -26,7 +26,7 @@ class PlanningCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Planning
-        fields = ['agent', 'date', 'type_service', 'notes']
+        fields = ['agent', 'date', 'type_service','poste', 'notes']
     
     def validate(self, data):
         # Vérifier qu'un planning n'existe pas déjà pour cet agent à cette date
@@ -52,6 +52,7 @@ class PlanningListSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'agent', 'agent_name', 'agent_matricule',
             'date', 'type_service', 'type_service_display',
+            'poste',
             'heure_debut', 'heure_fin', 'duree_service'
         ]
 
