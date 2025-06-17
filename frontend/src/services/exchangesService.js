@@ -77,20 +77,20 @@ class ExchangesService {
   }
 
   // Décision superviseur (valider/refuser)
-  async decisionSuperviseur(demandeId, action, commentaire = '') {
-    try {
-      const response = await api.post(`/echanges/${demandeId}/decision/`, {
-        action,
-        commentaire,
-      });
-      return response.data;
-    } catch (error) {
-      throw new Error(
-        error.response?.data?.error ||
-        'Erreur lors de la décision du superviseur'
-      );
-    }
+ async decisionSuperviseur(demandeId, action, commentaire = '') {
+  try {
+    const response = await api.post(`/echanges/${demandeId}/decision/`, {
+      action,
+      commentaire,
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error(
+      error.response?.data?.error ||
+      'Erreur lors de la décision du superviseur'
+    );
   }
+}
 
   // Récupérer les demandes à traiter (selon le rôle)
   async getDemandesATraiter() {

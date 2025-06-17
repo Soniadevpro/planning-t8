@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Plus, Send, Inbox, Clock } from 'lucide-react';
+import { Plus, Send, Inbox } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
 import Button from '../components/common/Button';
 import Badge from '../components/common/Badge';
+import NewExchangeModal from '../components/exchanges/NewExchangeModal';
 import exchangesService from '../services/exchangesService';
-import planningService from '../services/planningService';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -14,11 +14,8 @@ const Exchanges = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState('recues'); // 'recues', 'envoyees', 'nouvelle'
-  const [exchanges, setExchanges] = useState({
-    recues: [],
-    envoyees: []
-  });
+  const [activeTab, setActiveTab] = useState('recues');
+  const [exchanges, setExchanges] = useState({ recues: [], envoyees: [] });
   const [showNewExchangeForm, setShowNewExchangeForm] = useState(false);
 
   useEffect(() => {
@@ -37,7 +34,7 @@ const Exchanges = () => {
 
       setExchanges({ recues, envoyees });
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Erreur lors du chargement');
     } finally {
       setLoading(false);
     }
@@ -46,9 +43,9 @@ const Exchanges = () => {
   const handleResponse = async (demandeId, action) => {
     try {
       await exchangesService.repondreDemande(demandeId, action);
-      await loadExchanges(); // Recharger les données
+      await loadExchanges();
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Erreur lors de la réponse');
     }
   };
 
@@ -97,26 +94,20 @@ const Exchanges = () => {
                   <div className="bg-red-50 p-3 rounded-md">
                     <h4 className="text-sm font-medium text-red-800 mb-1">Créneau à échanger</h4>
                     <p className="text-sm text-red-700">
-                      {format(new Date(exchange.planning_demandeur_details?.date), 'EEEE d MMMM yyyy', { locale: fr })}
+                      {exchange.date_demandeur ? format(new Date(exchange.date_demandeur), 'EEEE d MMMM yyyy', { locale: fr }) : 'Date non définie'}
                     </p>
                     <p className="text-sm text-red-600">
-                      {exchange.planning_demandeur_details?.type_service}
-                      {exchange.planning_demandeur_details?.heure_debut && 
-                        ` (${exchange.planning_demandeur_details.heure_debut} - ${exchange.planning_demandeur_details.heure_fin})`
-                      }
+                      {exchange.type_service_demandeur}
                     </p>
                   </div>
 
                   <div className="bg-green-50 p-3 rounded-md">
                     <h4 className="text-sm font-medium text-green-800 mb-1">Créneau souhaité</h4>
                     <p className="text-sm text-green-700">
-                      {format(new Date(exchange.planning_destinataire_details?.date), 'EEEE d MMMM yyyy', { locale: fr })}
+                      {exchange.date_destinataire ? format(new Date(exchange.date_destinataire), 'EEEE d MMMM yyyy', { locale: fr }) : 'Date non définie'}
                     </p>
                     <p className="text-sm text-green-600">
-                      {exchange.planning_destinataire_details?.type_service}
-                      {exchange.planning_destinataire_details?.heure_debut && 
-                        ` (${exchange.planning_destinataire_details.heure_debut} - ${exchange.planning_destinataire_details.heure_fin})`
-                      }
+                      {exchange.type_service_destinataire}
                     </p>
                   </div>
                 </div>
@@ -124,39 +115,24 @@ const Exchanges = () => {
                 <div className="flex items-center justify-between text-sm text-ratp-gray-500">
                   <div>
                     {isReceived ? (
-                      <span>Demandé par {exchange.demandeur_details?.first_name} {exchange.demandeur_details?.last_name}</span>
+                      <span>Demandé par {exchange.demandeur_name}</span>
                     ) : (
-                      <span>Demandé à {exchange.destinataire_details?.first_name} {exchange.destinataire_details?.last_name}</span>
+                      <span>Demandé à {exchange.destinataire_name}</span>
                     )}
                   </div>
                   <div>
-                    {format(new Date(exchange.date_creation), 'dd/MM/yyyy à HH:mm', { locale: fr })}
+                   {exchange.created_at ? format(new Date(exchange.created_at), 'dd/MM/yyyy à HH:mm', { locale: fr }) : 'Date non définie'}
                   </div>
                 </div>
-
-                {exchange.commentaire && (
-                  <div className="mt-3 p-3 bg-ratp-gray-50 rounded-md">
-                    <p className="text-sm text-ratp-gray-700">{exchange.commentaire}</p>
-                  </div>
-                )}
               </div>
             </div>
 
-            {/* Actions pour les demandes reçues */}
             {isReceived && exchange.statut === 'en_attente' && (
               <div className="mt-4 flex space-x-3">
-                <Button
-                  variant="success"
-                  size="sm"
-                  onClick={() => handleResponse(exchange.id, 'accepter')}
-                >
+                <Button variant="success" size="sm" onClick={() => handleResponse(exchange.id, 'accepter')}>
                   Accepter
                 </Button>
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => handleResponse(exchange.id, 'refuser')}
-                >
+                <Button variant="danger" size="sm" onClick={() => handleResponse(exchange.id, 'refuser')}>
                   Refuser
                 </Button>
               </div>
@@ -184,7 +160,7 @@ const Exchanges = () => {
         </div>
 
         <Button
-          onClick={() => setShowNewExchangeForm(true)}
+          onClick={() => user && setShowNewExchangeForm(true)}
           className="flex items-center space-x-2"
         >
           <Plus className="h-4 w-4" />
@@ -215,7 +191,7 @@ const Exchanges = () => {
               )}
             </div>
           </button>
-          
+
           <button
             onClick={() => setActiveTab('envoyees')}
             className={`py-2 px-1 border-b-2 font-medium text-sm ${
@@ -237,60 +213,22 @@ const Exchanges = () => {
         </nav>
       </div>
 
-      {/* Contenu des onglets */}
       <div className="min-h-96">
         {activeTab === 'recues' && renderExchangesList(exchanges.recues, true)}
         {activeTab === 'envoyees' && renderExchangesList(exchanges.envoyees, false)}
       </div>
 
-      {/* Modal nouvelle demande */}
-      {showNewExchangeForm && (
-        <NewExchangeModal 
+      {showNewExchangeForm && user && (
+        <NewExchangeModal
+          show={showNewExchangeForm}
+          currentUserId={user.id}
           onClose={() => setShowNewExchangeForm(false)}
-          onSuccess={() => {
-            setShowNewExchangeForm(false);
-            loadExchanges();
-          }}
+          onExchangeCreated={loadExchanges}
         />
       )}
     </div>
   );
 };
 
-// Composant modal pour nouvelle demande (simplifié pour l'exemple)
-const NewExchangeModal = ({ onClose, onSuccess }) => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // Logique de création de demande
-    // Pour l'instant, on simule juste la fermeture
-    onSuccess();
-  };
-
-  return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full">
-        <h3 className="text-lg font-medium text-ratp-gray-900 mb-4">
-          Nouvelle demande d'échange
-        </h3>
-        
-        <p className="text-ratp-gray-600 mb-4">
-          Cette fonctionnalité sera implémentée prochainement avec un formulaire complet.
-        </p>
-
-        <div className="flex space-x-3">
-          <Button variant="outline" onClick={onClose}>
-            Annuler
-          </Button>
-          <Button onClick={onSuccess}>
-            OK
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 export default Exchanges;
+
