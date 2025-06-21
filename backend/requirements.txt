@@ -1,7 +1,30 @@
-asgiref==3.8.1
+# Core Django
 Django==5.2.1
 djangorestframework==3.16.0
-pillow==11.2.1
-psycopg2-binary==2.9.10
+
+# Authentification par token
+djangorestframework-simplejwt==5.3.1
+
+# Utilitaires et gestion de configuration
 python-decouple==3.8
+asgiref==3.8.1
 sqlparse==0.5.3
+
+# Images (avatars, etc.)
+Pillow==11.2.1
+
+# Base de données PostgreSQL (prod) - sqlite en dev
+psycopg2-binary==2.9.10
+
+# CORS pour requêtes API depuis frontend React
+django-cors-headers==4.3.1
+
+# Tests & outils de développement
+pytest==8.2.2
+pytest-django==4.8.0
+coverage==7.5.3
+requests==2.32.2
+
+# Sécurité & headers HTTP (optionnel mais recommandé)
+django-secure==1.0.1
+
