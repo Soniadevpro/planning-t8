@@ -23,7 +23,7 @@ const Header = ({ onMenuClick }) => {
             <div className="flex items-center ml-4 lg:ml-0">
               <img
                 className="h-8 w-auto"
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Logo_RATP.svg/1200px-Logo_RATP.svg.png"
+                src="/logoratp.png"
                 alt="RATP"
               />
               <div className="ml-4">
