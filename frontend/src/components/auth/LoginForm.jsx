@@ -44,7 +44,7 @@ const LoginForm = () => {
           <div className="flex justify-center">
             <img
               className="h-16 w-auto"
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Logo_RATP.svg/1200px-Logo_RATP.svg.png"
+              src="/public/logoratp.png"
               alt="RATP"
             />
           </div>
